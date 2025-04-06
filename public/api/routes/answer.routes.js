@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controllers_1 = require("../controllers");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const answer = (0, express_1.Router)();
+answer.post("/create/:questionId", auth_middleware_1.Authenticate, controllers_1.answerController.createAnswer);
+answer.get("/user/:userId", controllers_1.answerController.answerByUserId);
+answer.get("/all/:questionId", controllers_1.answerController.getAnswersByQuestion);
+exports.default = answer;

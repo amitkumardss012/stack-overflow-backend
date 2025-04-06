@@ -1,0 +1,111 @@
+// This is your Prisma schema file.
+// Learn more about Prisma at: https://pris.ly/d/prisma-schema
+
+// Generator for Prisma Client
+// This will generate the Prisma Client for interacting with the database.
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Database connection settings
+// MySQL is being used as the database provider.
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// =====================
+// User Model
+// =====================
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique    // Unique username
+  email     String   @unique    // Unique email
+  password  String   // Encrypted password
+  bio       String?  // Optional bio
+  createdAt DateTime @default(now())    // Timestamp of creation
+  updatedAt DateTime @updatedAt         // Timestamp of last update
+
+  // Relationships
+  questions Question[]
+  answers   Answer[]
+  bookmarks Bookmark[]
+
+  // Indexes for quick lookup
+  @@index([username, email, id])
+}
+
+// =====================
+// Question Model
+// =====================
+model Question {
+  id        Int      @id @default(autoincrement())
+  title     String   // Question title
+  content   String   // Question description/content
+  // tags      Tag[]    // Related tags (Many-to-Many relationship with Tag)
+  createdAt DateTime @default(now())    // Timestamp of creation
+  updatedAt DateTime @updatedAt         // Timestamp of last update
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int      // Foreign key referencing User
+
+  // Relationships
+  answers   Answer[]
+  bookmarks Bookmark[]
+  
+  // Indexes for quick search and filtering
+  @@index([title])
+  @@index([userId, createdAt])
+}
+
+// =====================
+// Tag Model
+// =====================
+model Tag {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique    // Unique tag name
+  questionId Int      // Foreign key referencing Question
+
+  // Relationships
+  // question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // Index for efficient tag searches
+  @@index([name, questionId])
+}
+
+// =====================
+// Answer Model
+// =====================
+model Answer {
+  id         Int      @id @default(autoincrement())
+  content    String   // Answer content
+  createdAt  DateTime @default(now())    // Timestamp of creation
+  updatedAt  DateTime @updatedAt         // Timestamp of last update
+
+  // Relationships
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      // Foreign key referencing User
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId Int      // Foreign key referencing Question
+
+  // Indexes for performance optimization
+  @@index([questionId, userId, createdAt])
+}
+
+// =====================
+// Bookmark Model
+// =====================
+model Bookmark {
+  id         Int      @id @default(autoincrement())
+  isBookmarked Boolean @default(false)
+  createdAt  DateTime @default(now())    // Timestamp of creation
+  updatedAt  DateTime @updatedAt         // Timestamp of last update
+
+  // Relationships
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int      // Foreign key referencing User
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId Int      // Foreign key referencing Question
+
+  // Index for quick lookups
+  @@index([userId, questionId])
+}
