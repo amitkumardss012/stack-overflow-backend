@@ -42,7 +42,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserByID = exports.profile = exports.logout = exports.login = exports.signUp = void 0;
+exports.updateUser = exports.getUserByID = exports.profile = exports.logout = exports.login = exports.signUp = void 0;
 const config_1 = require("../../config");
 const error_middleware_1 = require("../middlewares/error.middleware");
 const service_1 = require("../service");
@@ -146,4 +146,18 @@ exports.getUserByID = (0, error_middleware_1.asyncHandler)((req, res, next) => _
         }
     });
     return (0, response_util_1.SuccessResponse)(res, "User fetched successfully", user, types_1.statusCode.OK);
+}));
+exports.updateUser = (0, error_middleware_1.asyncHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const id = Number((_a = req.User) === null || _a === void 0 ? void 0 : _a.id);
+    const bio = req.body.bio;
+    if (!id)
+        return next(new utils_1.ErrorResponse("User not found", types_1.statusCode.Unauthorized));
+    const user = yield config_1.prisma.user.update({
+        where: { id },
+        data: {
+            bio,
+        }
+    });
+    return (0, response_util_1.SuccessResponse)(res, "User updated successfully", user, types_1.statusCode.OK);
 }));
