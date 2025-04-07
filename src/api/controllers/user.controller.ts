@@ -126,3 +126,18 @@ export const getUserByID = asyncHandler(async (req, res, next) => {
 
   return SuccessResponse(res, "User fetched successfully", user, statusCode.OK);
 });
+
+export const updateUser = asyncHandler(async (req, res, next) => {
+  const id = Number(req.User?.id);
+  const bio = req.body.bio;
+  if(!id) return next(new ErrorResponse("User not found", statusCode.Unauthorized))
+
+  const user = await prisma.user.update({
+    where: { id },
+    data: {
+      bio,
+    }
+  });
+
+  return SuccessResponse(res, "User updated successfully", user, statusCode.OK);
+});
